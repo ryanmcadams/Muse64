@@ -51,3 +51,7 @@ muse-for-windows/
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Credits
+
+Built by **Zucker** — [@ZuckerMuse](https://x.com/ZuckerMuse) on X — for Ryan McAdams.
