@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+publish/
+
+# .NET
+*.user
+*.suo
+.vs/
+TestResults/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

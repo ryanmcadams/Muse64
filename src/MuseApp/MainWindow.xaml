@@ -1,0 +1,40 @@
+<Window x:Class="MuseApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="Muse" Height="860" Width="1280"
+        MinHeight="480" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        Icon="muse.ico">
+    <Grid>
+        <!-- Loading state -->
+        <StackPanel x:Name="LoadingPanel"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Muse" FontSize="28" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
+            <TextBlock x:Name="LoadingText" Text="Loading…"
+                       FontSize="14" Foreground="#888888"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- WebView2-missing error state -->
+        <StackPanel x:Name="ErrorPanel" Visibility="Collapsed"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    MaxWidth="460" Margin="24">
+            <TextBlock Text="Couldn't start the embedded browser."
+                       FontSize="18" FontWeight="SemiBold"
+                       TextWrapping="Wrap" Margin="0,0,0,8"/>
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,16">
+                Muse needs the free Microsoft Edge WebView2 Runtime.
+                Install it, then relaunch this app.
+            </TextBlock>
+            <TextBlock x:Name="ErrorDetails" TextWrapping="Wrap"
+                       FontSize="12" Foreground="#888888" Margin="0,0,0,16"/>
+            <Button x:Name="DownloadRuntimeButton" Content="Get WebView2 Runtime"
+                    Padding="16,8" HorizontalAlignment="Left"
+                    Click="DownloadRuntimeButton_Click"/>
+        </StackPanel>
+
+        <wpf:WebView2 x:Name="WebView" Visibility="Collapsed" />
+    </Grid>
+</Window>
