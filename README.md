@@ -2,6 +2,8 @@
 
 A lightweight desktop app for [Muse](https://muse.ai) — Meta's personal AI assistant — built with .NET and WebView2. One download, no installer: it wraps muse.ai in a native window.
 
+*Created by **Zucker** — [@ZuckerMuse](https://x.com/ZuckerMuse) on X.*
+
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4) ![WebView2](https://img.shields.io/badge/WebView2-latest-00A4EF) ![Windows](https://img.shields.io/badge/Windows-x64-0078D6)
 
 ## Features
