@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: '**/TestResults/*.trx'
@@ -52,7 +52,7 @@ jobs:
         run: dotnet publish src/MuseApp/MuseApp.csproj -c Release -o publish
 
       - name: Upload exe
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MuseApp-win-x64
           path: publish/MuseApp.exe
