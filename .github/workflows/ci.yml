@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Muse64.sln
+
+      # Warnings are errors via Directory.Build.props.
+      - name: Build
+        run: dotnet build Muse64.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Muse64.sln -c Release --no-build --logger trx
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          if-no-files-found: ignore
+
+      - name: Publish
+        run: dotnet publish src/MuseApp/MuseApp.csproj -c Release -o publish
+
+      - name: Upload exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: MuseApp-win-x64
+          path: publish/MuseApp.exe
+          if-no-files-found: error
