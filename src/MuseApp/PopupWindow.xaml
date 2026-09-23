@@ -1,0 +1,10 @@
+<Window x:Class="MuseApp.PopupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Muse" Width="520" Height="680"
+        MinWidth="320" MinHeight="320"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource Muse.Background}">
+  <ContentControl x:Name="WebViewSlot" Focusable="False" />
+</Window>

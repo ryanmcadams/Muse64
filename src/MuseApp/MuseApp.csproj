@@ -3,28 +3,55 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
     <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (NotifyIcon); no WinForms UI otherwise. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- WFO0003 wants DPI awareness set via the WinForms API; this is a WPF app, so the
+         manifest (PerMonitorV2) is the right and required place. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- Windows without an explicit Icon use the exe icon. (WPF's WIC decoder cannot read this
+         PNG-compressed .ico, so it must not be set as a XAML Icon/Resource.) -->
     <ApplicationIcon>muse.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- LibraryImport source-generated P/Invoke stubs (Native/*.cs). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyTitle>Muse</AssemblyTitle>
     <AssemblyProduct>Muse for Windows</AssemblyProduct>
     <AssemblyCompany>Zucker</AssemblyCompany>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
+  </PropertyGroup>
 
-    <!-- Single-file publish: dotnet publish -c Release -->
+  <!-- Single-file, self-contained publish: dotnet publish -c Release -->
+  <PropertyGroup>
+    <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <DebugType>none</DebugType>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <!-- WPF needs ICU/culture data, so InvariantGlobalization stays off; only trim satellite languages. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Keep WinForms/GDI+ names out of the global namespace; they clash with WPF types. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tray icon source (loaded by TrayIcon with System.Drawing, which handles PNG-compressed entries). -->
+    <EmbeddedResource Include="muse.ico" LogicalName="MuseApp.muse.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MuseApp.Core\MuseApp.Core.csproj" />
   </ItemGroup>
 
 </Project>

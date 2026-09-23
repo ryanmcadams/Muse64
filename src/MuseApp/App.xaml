@@ -1,5 +1,34 @@
 <Application x:Class="MuseApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             ShutdownMode="OnExplicitShutdown">
+  <!-- OnExplicitShutdown: hiding the window to the tray must not end the app;
+       MainWindow calls Shutdown when it really closes. -->
+  <!-- Theme brushes (Muse.*) are set in code by Theme.cs and consumed via DynamicResource. -->
+  <Application.Resources>
+    <Style x:Key="MuseButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{DynamicResource Muse.Foreground}" />
+      <Setter Property="Background" Value="{DynamicResource Muse.ButtonBackground}" />
+      <Setter Property="Padding" Value="16,8" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="6"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Muse.ButtonHover}" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Muse.ButtonHover}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Application.Resources>
 </Application>

@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Verify csproj version matches tag
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $version = (dotnet msbuild src/MuseApp/MuseApp.csproj -getProperty:Version).Trim()
+          if ("v$version" -ne $tag) {
+            Write-Output "::error::Tag '$tag' does not match <Version>$version</Version> in src/MuseApp/MuseApp.csproj (expected tag 'v$version'). Bump the csproj or re-tag."
+            exit 1
+          }
+          Write-Output "Version OK: $tag"
+
+      - name: Restore
+        run: dotnet restore Muse64.sln
+
+      # Warnings are errors via Directory.Build.props.
+      - name: Build
+        run: dotnet build Muse64.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Muse64.sln -c Release --no-build --logger trx
+
+      - name: Publish
+        run: dotnet publish src/MuseApp/MuseApp.csproj -c Release -o publish
+
+      # TODO(signing): the exe is unsigned, so SmartScreen shows "Unknown publisher".
+      # Once a certificate (OV/EV) or Azure Trusted Signing is set up, sign here,
+      # before zipping and hashing. See docs/RELEASING.md.
+      # - name: Sign
+      #   run: |
+      #     signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 `
+      #       /f cert.pfx /p "${{ secrets.SIGNING_CERT_PASSWORD }}" publish/MuseApp.exe
+
+      - name: Package
+        id: package
+        run: |
+          $zip = "MuseForWindows-${{ github.ref_name }}-win-x64.zip"
+          Compress-Archive -Path publish/MuseApp.exe -DestinationPath $zip -Force
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          # sha256sum-compatible format: "<hash>  <file>"
+          "$hash  $zip" | Out-File SHA256SUMS.txt -Encoding ascii
+          Get-Content SHA256SUMS.txt
+          "zip=$zip" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.package.outputs.zip }}
+            SHA256SUMS.txt
+          generate_release_notes: true

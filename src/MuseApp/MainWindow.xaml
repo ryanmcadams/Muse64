@@ -1,40 +1,55 @@
 <Window x:Class="MuseApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="Muse" Height="860" Width="1280"
         MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterScreen"
-        Icon="muse.ico">
-    <Grid>
-        <!-- Loading state -->
-        <StackPanel x:Name="LoadingPanel"
-                    HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Muse" FontSize="28" FontWeight="SemiBold"
-                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
-            <TextBlock x:Name="LoadingText" Text="Loading…"
-                       FontSize="14" Foreground="#888888"
-                       HorizontalAlignment="Center"/>
-        </StackPanel>
+        Background="{DynamicResource Muse.Background}"
+        Foreground="{DynamicResource Muse.Foreground}">
+  <!-- WebView2 is a native child window drawn above all WPF content ("airspace"),
+       so overlays are shown by hiding the WebView, never by layering on top of it.
+       Hidden, not Collapsed: a collapsed WebView2 never creates its HWND, so
+       EnsureCoreWebView2Async would wait forever. -->
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
 
-        <!-- WebView2-missing error state -->
-        <StackPanel x:Name="ErrorPanel" Visibility="Collapsed"
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                    MaxWidth="460" Margin="24">
-            <TextBlock Text="Couldn't start the embedded browser."
-                       FontSize="18" FontWeight="SemiBold"
-                       TextWrapping="Wrap" Margin="0,0,0,8"/>
-            <TextBlock TextWrapping="Wrap" Margin="0,0,0,16">
-                Muse needs the free Microsoft Edge WebView2 Runtime.
-                Install it, then relaunch this app.
-            </TextBlock>
-            <TextBlock x:Name="ErrorDetails" TextWrapping="Wrap"
-                       FontSize="12" Foreground="#888888" Margin="0,0,0,16"/>
-            <Button x:Name="DownloadRuntimeButton" Content="Get WebView2 Runtime"
-                    Padding="16,8" HorizontalAlignment="Left"
-                    Click="DownloadRuntimeButton_Click"/>
-        </StackPanel>
+    <!-- Shown while the top-level page is on an https host outside the trusted set. -->
+    <Border x:Name="InfoBar" Grid.Row="0" Visibility="Collapsed"
+            Background="{DynamicResource Muse.Bar}" Padding="12,6">
+      <DockPanel LastChildFill="True">
+        <Button DockPanel.Dock="Right" Content="Back to Muse" Padding="12,4"
+                Style="{StaticResource MuseButton}" Click="BackToMuse_Click" />
+        <TextBlock x:Name="InfoBarText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource Muse.Foreground}" Margin="0,0,12,0" />
+      </DockPanel>
+    </Border>
 
-        <wpf:WebView2 x:Name="WebView" Visibility="Collapsed" />
-    </Grid>
+    <ContentControl x:Name="WebViewSlot" Grid.Row="1" Focusable="False" Visibility="Hidden" />
+
+    <StackPanel x:Name="LoadingPanel" Grid.Row="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="Muse" FontSize="28" FontWeight="SemiBold"
+                 Foreground="{DynamicResource Muse.Foreground}"
+                 HorizontalAlignment="Center" Margin="0,0,0,8" />
+      <TextBlock x:Name="LoadingText" Text="Loading…" FontSize="14"
+                 Foreground="{DynamicResource Muse.Muted}" HorizontalAlignment="Center" />
+    </StackPanel>
+
+    <!-- Offline, crash-loop and missing-runtime states share this panel. -->
+    <StackPanel x:Name="MessagePanel" Grid.Row="1" Visibility="Collapsed"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                MaxWidth="460" Margin="24">
+      <TextBlock x:Name="MessageTitle" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"
+                 Foreground="{DynamicResource Muse.Foreground}" Margin="0,0,0,8" />
+      <TextBlock x:Name="MessageBody" TextWrapping="Wrap"
+                 Foreground="{DynamicResource Muse.Foreground}" Margin="0,0,0,16" />
+      <TextBlock x:Name="MessageDetails" TextWrapping="Wrap" FontSize="12"
+                 Foreground="{DynamicResource Muse.Muted}" Margin="0,0,0,16" />
+      <Button x:Name="MessageButton" HorizontalAlignment="Left"
+              Style="{StaticResource MuseButton}" Click="MessageButton_Click" />
+    </StackPanel>
+  </Grid>
 </Window>
